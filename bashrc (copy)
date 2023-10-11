@@ -1,0 +1,122 @@
+#ALIAS
+# Mis Alias:
+# - ROS1
+alias noetic='source /opt/ros/noetic/setup.bash'
+alias qwe='echo -e "\e[32mCorriendo \"catkin_make\" para compilar el workspace\e[0m" && catkin_make'
+alias qwer='echo -e "\e[32mCorriendo \"catkin build\" para compilar el workspace\e[0m" && catkin build'
+alias asd='echo -e "\e[32mCorriendo \"source devel/setup.bash\" para actualizar la terminal\e[0m" && source devel/setup.bash'
+alias rqt_gui='rosrun rqt_gui rqt_gui'
+alias moveit='roslaunch moveit_setup_assistant setup_assistant.launch'
+
+# - ROS2
+alias galactic='source /opt/ros/galactic/setup.bash'
+alias asd2='source install/setup.bash'
+alias qwe2='colcon build'
+alias qwe2_pkg='colcon build --packages-select'
+
+# - Husarnet
+alias husarnet_on='export ROS_IPV6=on && export ROS_HOSTNAME=ubuntu && export ROS_MASTER_URI=http://master:11311 && husarnet start'
+alias husarnet_off='husarnet stop && export ROS_IPV6=off && export ROS_HOSTNAME=ubuntu.local && export ROS_MASTER_URI=http://ubuntu.local:11311'
+
+# - Arduino
+alias ros_lib='rosrun rosserial_arduino make_libraries.py .'
+
+# - Apps
+alias coppelia='cd ~/Documents/CoppeliaSim && ./coppeliaSim.sh'
+alias xampp='sudo /opt/lampp/manager-linux-x64.run'
+
+# - General
+alias update='sudo apt-get update'
+alias upgrade='sudo apt-get upgrade'
+alias python='python3'
+alias sbash='source ~/.bashrc'
+alias ebash='code ~/.bashrc'
+
+# - Other
+alias mp4_to_mp3='ffmpeg -i input.mp4 -vn -f mp3 -ab 192k output.mp3'
+alias deldocker='function _deldocker(){ docker stop $1 && docker rm $1; };_deldocker'
+alias img="ascii-image-converter $1 --color --full"
+
+pythonpath() {
+  if [[ $1 == "empty" ]]; then
+    export PYTHONPATH=""
+  elif [[ $1 == "ros" ]]; then
+    echo "ROS dist-packages added"
+    export PYTHONPATH=$PYTHONPATH:"/opt/ros/noetic/lib/python3/dist-packages"
+  elif [[ $1 == "ftools" ]]; then
+    echo "Fogsphere Tools added"
+    export PYTHONPATH=$PYTHONPATH:"/home/wilber/fogsphere/1.repos/fogsphere-tools/fogsphere_tools/"
+  else
+    echo "usage pythonpath <option>
+    options: empty, ros, ftools
+    ---
+    actual PYTHONPATH: $PYTHONPATH"
+  fi
+}
+#pythonpath empty
+#pythonpath ros
+#pythonpath ftools
+
+superdocker() {
+  if [[ $1 == "exec" ]]; then
+    if [[ -z $2 ]]; then
+      echo "Proporciona el nombre de un contenedor."
+    else
+      docker start $2
+      docker exec -it $2 bash
+    fi
+  elif [[ $1 == "rm" ]]; then
+    if [[ -z $2 ]]; then
+      echo "Proporciona el nombre de un contenedor."
+    else
+      docker stop $2
+      docker rm $2
+    fi
+  else
+    echo "usage: 
+    superdocker exec container_1
+      this runs: docker start, exec
+    
+    superdocker rm container_1
+      this runs: docker stop, rm"
+  fi
+}
+
+supergit() {
+  if [[ $1 == "update" ]]; then
+    if [[ -z $2 ]]; then
+      echo "Por favor, proporciona un mensaje de commit."
+    else
+      echo "-------git add ."
+      git add .
+      echo "-------git commit -m '$2'"
+      git commit -m "$2"
+      echo "-------git push:"
+      git push 
+    fi
+  elif [[ $1 == "tools" ]]; then
+    echo "installing meld..."
+    sudo apt-get install meld
+    echo "configuring mergetool..."
+    git config --global diff.tool meld
+    git config --global difftool.meld.path "/usr/bin/meld"
+    git config --global difftool.prompt false
+
+    git config --global merge.tool meld
+    git config --global mergetool.meld.path "/usr/bin/meld"
+    git config --global mergetool.prompt false
+
+    git config --global pull.rebase false
+  else
+    echo "usage:
+    - To update code in repository:
+      supergit update "message"
+      this runs: add ., commit, push
+
+    - To configure mergetool
+      supergit mergetool"
+  fi
+}
+
+
+export PS1="\[\033[38;5;6m\]\u@\h:\[$(tput sgr0)\]\[\033[38;5;208m\]\w\[$(tput sgr0)\]\[\033[38;5;10m\]\$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/')\[$(tput sgr0)\]\\$\[$(tput sgr0)\]"
